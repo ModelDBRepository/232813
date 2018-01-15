@@ -1,0 +1,60 @@
+<html>
+<p>NEURON model files derived from the paper:
+</p><p>Takaki Watanabe, Takashi Shimazaki, Yoichi Oda (2017).
+Coordinated expression of two types of low-threshold K+ channels establishes
+unique single-spiking of Mauthner cells among segmentally homologous neurons
+in the zebrafish hindbrain.<br/>
+eNeuro 4 October 2017,ENEURO.0249-17.2017; DOI: <a href="https://doi.org/10.1523/ENEURO.0249-17.2017">https://doi.org/10.1523/ENEURO.0249-17.2017</a>  
+</p><p>The NEURON model files encode the channel generator and firing simulator for simulating
+development and differentiation of the Mauthner cell (M-cell) excitability.
+The channel generator consists of "channel generator.hoc" and "channel analysis.hoc",
+which enable us to generate arbitrary Na+ and K+ channels by changing parameters of 
+a Hodgkin-Huxley model under emulation of two-electrode voltage-clamp recordings
+in Xenopus oocyte system for Figure 5. The code and equations of a Hodgkin-Huxley model are
+modified from the simulation by Rothman and Manis, 2003.
+</p><p>The firing simulator comprising "firing simulator.hoc", "firing analysis.hoc", "graphs panels.hoc",
+"neuron.hoc" and "parameters,hoc" simulates current-clamp recordings in the M-cell to
+generate firing pattern of the model M-cell, which are implemented with arbitrary determined
+basic Na+ and K+ conductances and low-threshold K+ channels Kv7.4/KCNQ4, Kv1.1 or
+Kv1.1 coexpressed with Kvbeta2. Default setting is step current injection for 100 ms with 
+1pA increment from near threshold current. The Na+ and K+ conductance and current dynamics are
+visualized during firing. Threshold current (1T), 1st action potential latency,
+number of action potentials at 1.5T and 2T, and interspike interval ratio (ISI(last)/ISI(1st))
+at 2T are measured and printed. Run(step) and Run(500Hz) buttons execute firing simulation
+showing results for Figures 6, 7, 8 and for Figure 9, respectively.
+</p><p>The following .mod files are implemented in a single cylindrical compartment.
+<p/>IClamp2.mod:Step  current injection for current-clamp recoding.
+<p/>IClamp500.mod:500  Hz current injection for current-clamp recoding.
+<p/>kcnq.mod: a low-threshold K+ channel Kv7.4/KCNQ4 encoded in zebrafish kcnq4.
+<p/>kcna.mod: a low-threshold K+ channel Kv1.1 encoded in zebrafish kcna1a.
+<p/>kcnab2.mod: a low-threshold K+ channel Kv1.1 coexpressed with zebrafish Kvbeta2b subunit.
+<p/>kht.mod: a high-threshold voltage-gated K+ channel.
+<p/>ka.mod: an A-type voltage-gated K+ channel.
+<p/>na.mod: a voltage-gated Na+ channel.
+<p/>leak.mod: a leak (passive) channel.
+</p>
+Example run:
+<p/>
+Auto-launch from modeldb or download and extract the mod files and start with a command like:
+<p/>
+nrngui mosinit.hoc
+<p/>
+If you need more help in starting the model on your platform please consult this web page:
+<p/>
+<a href="https://senselab.med.yale.edu/ModelDB/NEURON_DwnldGuide.cshtml">https://senselab.med.yale.edu/ModelDB/NEURON_DwnldGuide.cshtml</a>
+<p/>
+You will see several windows appear, including one that looks like:
+<p/>
+<img src="./screenshot0.png" width="650" alt="Firing simulator">
+<p/>
+Clicking on the Run(Step), Fig 6,8 button will show a figure containing some in figure 6 in the paper:
+<p/>
+<img src="./screenshot.png" width="550" alt="screenshot">
+
+<p>Takaki Watanabe<br/>
+<a href="mailto:wtakaki@m.u-tokyo.ac.jp">wtakaki@m.u-tokyo.ac.jp</a>
+
+</p>
+
+</body>
+</html>
