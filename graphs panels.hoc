@@ -1,0 +1,380 @@
+// Graphs panels.hoc generates firing pattern, conductance and ionic dynamics of
+// the model M-cell firing produced by firing simulator.hoc.
+// Each firing model can be activated by step currents with 1pA increments (Figures 6,7,8) or 
+// 500Hz pulse currents with 20pA increments(Figure 9). 
+// Comprehensive implementation of kcnq and kcna or kcnq and kcnab2 are executed
+// ranging from 0 to 2000 nS and from 0 to 1000 nS, respectively (Figure 7). 
+// Almost all parameters can be changed to test how it affect to the model firing.
+// Representative firing traces at 1T, 1.5T, 2T, 2.5T and 3T are shown.  
+//
+// Takaki Watanabe
+// wtakaki@m.u-tokyo.ac.jp
+
+
+proc graph1(){
+yt.x[6]=40
+yb.x[6]=-5
+ana[3]= new Graph()
+ana[3].size(iint, icur.max()*1.2, yb.x[6], yt.x[6])
+ana[3].label(0.1,0.95,"#AP vs I")
+}
+
+proc graph2(){
+yt.x[7]=ncur
+yb.x[7]=0
+ana[4]= new Graph()
+ana[4].size(xscale0, xscale1, yb.x[7], icamp)
+ana[4].exec_menu("10% Zoom out")
+ana[4].label(0.2,0.9,"Raster plot")
+}
+
+proc graph3(){
+yt.x[2]=0.01
+yb.x[2]=0
+plotwin= new Graph(0)
+plotwin.size(xscale0,xscale1, yb.x[2], yt.x[2])
+gp[2]=plotwin
+{plotwin.view(xscale0, yb.x[2], xscale1, (yt.x[2]-yb.x[2]), 0, 450, 400, 200, 400, 40)}
+graphList[0].append(plotwin)
+plotwin.save_name("graphList[2].")
+plotwin.addexpr("soma.gna_na(0.5)",1,1,0.8,0.9,2)
+plotwin.addexpr("soma.gkcna_kcna(0.5)",6,1,0.8,0.9,2)
+plotwin.addexpr("soma.gkht_kht(0.5)",3,1,0.8,0.9,2)
+plotwin.addexpr("soma.gka_ka(0.5)",4,1,0.8,0.9,2)
+plotwin.addexpr("soma.gkcnq_kcnq(0.5)",2,1,0.8,0.9,2)
+}
+proc graph4(){
+yt.x[1]=0.4
+yb.x[1]=-0.4
+plotwin= new Graph(0)
+plotwin.size(xscale0,xscale1, yb.x[1], yt.x[1])
+gp[1]=plotwin
+{plotwin.view(xscale0, yb.x[1], xscale1, (yt.x[1]-yb.x[1]), 0,250, 400, 200, 400, 40)}
+graphList[0].append(plotwin)
+plotwin.save_name("graphList[1].")
+plotwin.addexpr("soma.ina(0.5)",1,1,0.8,0.9,2)
+plotwin.addexpr("soma.ik(0.5)",2,1,0.8,0.9,2)
+}
+
+proc graph5(){
+yt.x[8]=500
+yb.x[8]=-50
+ana[5]= new Graph()
+ana[5].size(0, 10, yb.x[8], yt.x[8])
+ana[5].label(0.2,0.9,"Instant frequency")
+}
+
+proc graph6(){
+yt.x[9]=6
+yb.x[9]=-1
+ana[6]= new Graph()
+ana[6].size(iint, icamp, yb.x[9], yb.x[9])
+ana[6].exec_menu("10% Zoom out")
+ana[6].label(0.2,0.9,"1stAP latency")
+}
+
+proc graph7(){
+ana[7]= new Graph()
+ana[7].size(0, 4, yb.x[6], yb.x[6])
+ana[7].exec_menu("10% Zoom out")
+ana[7].label(0.2,0.9,"#AP vs I @T")
+}
+
+proc graph8(){
+ana[8]= new Graph()
+ana[8].size(xscale0, xscale1, yb.x[7], icamp)
+ana[8].exec_menu("10% Zoom out")
+ana[8].label(0.2,0.9,"Raster plot @T")
+}
+
+proc graph9(){
+ana[9]= new Graph()
+ana[9].size(0, 4, yb.x[8], yt.x[8])
+ana[9].exec_menu("10% Zoom out")
+ana[9].label(0.2,0.9,"Instant frequency @T")
+}
+
+proc graph10(){
+ana[10]= new Graph()
+ana[10].size(0, 10, yb.x[9], yb.x[9])
+ana[10].exec_menu("10% Zoom out")
+ana[10].label(0.2,0.9,"1stAP latency @T")
+}
+
+num=21
+num1=21
+
+proc newtraces(){
+w[num1]=new VBox()
+w[num1].intercept(1)
+	ana[num+4] = new Graph()
+    ana[num+4].size(xscale0,xscale1, yb.x[0], yt.x[0])
+	ana[num+4].label(0.1,0.9,"3T")
+	ana[num+3] = new Graph()
+    ana[num+3].size(xscale0,xscale1, yb.x[0], yt.x[0])
+	ana[num+3].label(0.1,0.9,"2.5T")
+	ana[num+2] = new Graph()
+    ana[num+2].size(xscale0,xscale1, yb.x[0], yt.x[0])
+	ana[num+2].label(0.1,0.9,"2T (Fig.6)")
+	ana[num+1] = new Graph()
+	ana[num+1].size(xscale0,xscale1, yb.x[0], yt.x[0])
+	ana[num+1].label(0.1,0.9,"1.5T (Fig.6)")
+	ana[num] = new Graph()
+	ana[num].size(xscale0,xscale1, yb.x[0], yt.x[0])
+	ana[num].label(0.1,0.9,"1T (Fig.6)")
+w[num1].intercept(0)
+w[num1].map("Firing traces(1-3T)",50,300,220,500)
+}
+
+num2=470
+num4=470
+
+w[3]=new HBox()
+w[3].intercept(1)
+w[4]= new VBox()
+w[4].intercept(1)
+{
+xscale0=3
+xscale1=120
+yt.x[0]=10
+yb.x[0]=-90
+plotwin= new Graph(0)
+plotwin.size(xscale0,xscale1, yb.x[0], yt.x[0])
+gp[0]=plotwin
+{plotwin.view(xscale0, yb.x[0], xscale1, (yt.x[0]-yb.x[0]), 300, 600, 400,300, 5, 5)}
+graphList[0].append(plotwin)
+plotwin.save_name("graphList[0].")
+plotwin.addexpr("soma.v(0.5)",1,1,0.8,0.9,2)
+plotwin.exec_menu("Keep Lines")
+}
+graph3()
+graph4()
+
+w[4].intercept(0)
+w[4].map()
+
+//Main control panel
+w[0]= new VBox()
+w[0].intercept(1)
+{
+xpanel("Control panel",0)
+xlabel("M-cell firing")
+xradiobutton("gKv1.1,gKv7.4(0,0)","access soma set_Mauthner0() set_original()",1)
+xradiobutton("gKv1.1,gKv7.4(150,0)","access soma set_Mauthner3() set_original()",0)
+xradiobutton("gKv1.1,gKv7.4(0,700)","access soma set_Mauthner4() set_original()",0)
+xradiobutton("gKv1.1,gKv7.4(150,700)","access soma set_Mauthner2() set_original()",0)
+xradiobutton("gKv1.1+beta2, gKv7.4(700,0)","access soma set_Mauthner5() set_original()",0)
+xradiobutton("gKv1.1+beta2, gKv7.4(0,1400)","access soma set_Mauthner6() set_original()",0)
+xradiobutton("gKv1.1+beta2, gKv7.4(700,1400)","access soma set_Mauthner1() set_original()",0)
+xbutton("Run(Step), Fig.6,8","iclamp2() run1()")
+xbutton("Run(Step), Fig.7(Kv1.1)  ","iclamp2() mode=3 run1()")
+xbutton("Run(Step), Fig.7(Kv1.1+beta2)","iclamp2() mode=4 run1()")
+xbutton("Run(500Hz), Fig.9 ","iclamp500() run1()")
+xbutton("Stop","excute stoprun=1")
+xpanel()
+}
+
+w[1]= new Deck()
+w[1].intercept(1)
+{
+xpanel("IClamp parameters")
+xlabel("IClamp parameters")
+xvalue("Initial I (pA)","iint",1,"",0,0)
+xvalue("Isteps (#)","ncur",1,"",0,0)
+xvalue("Idelta (pA)","idelta",1,"",0,0)
+xpanel()
+}
+w[1].intercept(0)
+w[1].map()
+
+xpanel("Graph control",0)
+xlabel("Graph control")
+xradiobutton("Firing graph","w[5].flip_to(0)",1)
+xradiobutton("Conductance graph","w[5].flip_to(1)",0)
+xradiobutton("Current graph","w[5].flip_to(2)",0)
+xradiobutton("Phase Plane","w[5].flip_to(4)",0)
+xpanel()
+
+w[5]= new Deck()
+w[5].intercept(1)
+{
+xpanel("")
+xlabel("Firing graph")
+xvalue("xaxis0","xscale0",1,"",0,0)
+xvalue("xaxis1","xscale1",1,"",0,0)
+xvalue("y0top","yt.x[0]",1,"",0,0)
+xvalue("y0bottom","yb.x[0]",1,"",0,0)
+xpanel()
+xpanel("")
+xlabel("Conductance graph")
+xvalue("xaxis0","xscale0",1,"",0,0)
+xvalue("xaxis1","xscale1",1,"",0,0)
+xvalue("y2top","yt.x[2]",1,"",0,0)
+xvalue("y2bottom","yb.x[2]",1,"",0,0)
+xpanel()
+xpanel("")
+xlabel("Current graph")
+xvalue("xaxis0","xscale0",1,"",0,0)
+xvalue("xaxis1","xscale1",1,"",0,0)
+xvalue("y1top","yt.x[1]",1,"",0,0)
+xvalue("y1bottom","yb.x[1]",1,"",0,0)
+xpanel()
+xpanel("")
+xlabel("Firing trance")
+xvalue("xaxis0","xscale0",1,"",0,0)
+xvalue("xaxis1","xscale1",1,"",0,0)
+xvalue("y4top","yt.x[4]",1,"",0,0)
+xvalue("y4bottom","yb.x[4]",1,"",0,0)
+xpanel()
+xpanel("")
+xlabel("Phase Plane")
+xvalue("x3left","xl.x[3]",1,"",0,0)
+xvalue("x3right","xr.x[3]",1,"",0,0)
+xvalue("y3top","yt.x[3]",1,"",0,0)
+xvalue("y3bottom","yb.x[3]",1,"",0,0)
+xpanel()
+}
+w[5].intercept(0)
+w[5].map()
+
+{
+xl.x[3]=-100
+xr.x[3]=50
+yt.x[3]=0.85
+yb.x[3]=-0.45
+plotwin= new Graph(0)
+plotwin.size(xl.x[3],xr.x[3], yb.x[3], yt.x[3])
+gp[3]=plotwin
+{plotwin.view(xl.x[3], yb.x[3], (xr.x[3]-xl.x[3]), (yt.x[3]-yb.x[3]), 150, 650, 150, 150, 200, 40)}
+graphList[0].append(plotwin)
+plotwin.save_name("graphList[3].")
+plotwin.addexpr("soma.i_cap(0.5)",2,1,0.8,0.9,2)
+plotwin.xexpr("soma.v(0.5)")
+
+}
+w[0].intercept(0)
+w[0].map("Control panel",550,0,200,400)
+
+w[2]= new VBox()
+w[2].intercept(1)
+{
+xpanel("M-cell parameters",0)
+xlabel("M-cell parameters")
+xvalue("Total cap pF","totcap",1,"totalcap() set_original()  run1()",0,0)
+xvalue("L um","soma.L",100,"capcalL() set_original()  run1()",0,0)
+xvalue("diam um","soma.diam",1,"capcalD() set_original()  run1()",0,0)
+xvalue("cm","soma.cm",1," run1()",0,0)
+xvalue("Ra","soma.Ra",1,"soma.Ra += 0 run1()",0,0)
+xvalue("celsius","celsius",1,"set_original()  run1()",0,0)
+xpanel()
+}
+{
+xpanel("Channel integration",0)
+xlabel("Channel integration (nS)")
+xvalue("gnabar_na","gnabar_na1",1,"set_original() run1()",0,0)
+xvalue("gkhtbar_kht","gkhtbar_kht1",1,"set_original() run1()",0,0)
+xvalue("gkabar_ka","gkabar_ka1",1,"set_original() run1()",0,0)
+xvalue("g_leak","g_leak1",1,"set_original() run1()",0,0)
+xvalue("gkcnqbar_kcnq","gkcnqbar_kcnq1",1,"set_original() run1()",0,0)
+xvalue("gkcnabar_kcna","gkcnabar_kcna1",1,"set_original() run1()",0,0)
+xvalue("gkcnab2bar_kcnab2","gkcnab2bar_kcnab21",1,"set_original() run1()",0,0)
+xpanel()
+}
+{
+xpanel("Current injection",0)
+xlabel("Current injection")
+xbutton("delta 20pA","access soma delta20pA() run1()",1)
+xbutton("delta 1pA","access soma delta1pA() run1()",0)
+xlabel("Firing trace control")
+xvalue("Color","color5",1,"",0,0)
+xbutton("Clear analysis","Clearrecord()")
+xbutton("New traces","num=num+5 num1=num1+1 newtraces()")
+xbutton("graph control","w[5].flip_to(3)",0)
+xpanel()
+}
+
+w[2].intercept(0)
+w[2].map("Parameters",1300,0,200,350)
+
+w[3].intercept(0)
+w[3].map("Firing simulator",10,10,650,650)
+
+w[9]=new HBox()
+w[9].intercept(1)
+
+w[7]=new VBox()
+w[7].intercept(1)
+graph1()
+graph2()
+graph5()
+graph6()
+w[7].intercept(0)
+w[7].map("",1000,450,300,500)
+
+w[8]=new VBox()
+w[8].intercept(1)
+graph7()
+graph8()
+graph9()
+graph10()
+w[8].intercept(0)
+w[8].map("",1200,450,300,500)
+
+w[9].intercept(0)
+w[9].map("Firing analysis(Fig.7, 9)",300,300,300,500)
+
+newtraces()
+
+proc reGraph(){
+for i=0,2 {
+	gp[i].erase_all()
+	gp[i].yaxis(0)
+	gp[i].size(xscale0, xscale1, yb.x[i], yt.x[i])
+	}
+	gp[3].erase_all()
+	gp[3].yaxis(0)
+	gp[3].size(xl.x[3], xr.x[3], yb.x[3], yt.x[3])
+	gp[0].label(0.15,0.95,modename)
+	gp[0].label(0.35,0.95,modelname)
+	gp[1].color(1)
+	gp[1].label("Ionic dynamics")
+	gp[1].label("soma ina")
+	gp[1].color(2)
+	gp[1].label("soma ik")
+	gp[2].label("Fig.8")
+	gp[2].label("Conductance dynamics")
+	ana[num+4].size(xscale0,xscale1, yb.x[0], yt.x[0]+20)
+    ana[num+3].size(xscale0,xscale1, yb.x[0], yt.x[0]+20)
+    ana[num+2].size(xscale0,xscale1, yb.x[0], yt.x[0]+20)
+	ana[num+1].size(xscale0,xscale1, yb.x[0], yt.x[0]+20)
+	ana[num].size(xscale0,xscale1, yb.x[0], yt.x[0]+20)
+	color=1
+	color2=2
+	color3=3
+	color4=1
+	threcur=0.01
+    spiken=0
+}
+
+proc Clearrecord(){
+for i=3,10{
+    ana[i].erase_all()
+    ana[i].yaxis(0)
+	}
+	ana[3].size(iint, icur.x[i]*1.2, yb.x[6], yt.x[6])
+	ana[4].size(-xscale1*0.1, xscale1,-icur.x[i]*0.2, icur.x[i]*1.2)
+	ana[5].size(0, spiken, yb.x[8], yt.x[8])
+	ana[6].size(-icur.x[i]*0.1, icur.x[i]*1.2, yb.x[9], yt.x[9])
+	ana[7].size(1, 3, yb.x[6], yt.x[6])
+	ana[8].size(-xscale1*0.1, xscale1,0, 4)
+	ana[9].size(0, spiken, yb.x[8], yt.x[8])
+	ana[10].size(1, 3, yb.x[9], yt.x[9])
+	ana[3].label(0.2,0.9,"#AP vs I")
+	ana[4].label(0.2,0.9,"Raster plot")
+	ana[6].label(0.2,0.9,"1stAP latency")
+	ana[5].label(0.2,0.9,"Interspike interval")
+	ana[7].label(0.2,0.9,"#AP vs I @T")
+	ana[8].label(0.2,0.9,"Raster plot @T")
+	ana[10].label(0.2,0.9,"1stAP latency @T")
+	ana[9].label(0.2,0.9,"Interspike interval @T")
+}

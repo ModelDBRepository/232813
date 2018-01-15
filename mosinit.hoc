@@ -1,0 +1,89 @@
+// Mosinit.hoc executes the channel generator and firing simulator for simulating
+// development and differentiation of the Mauthner cell (M-cell) excitability.
+// The simulation results are shown in Figures 5, 6, 7, 8, and 9. 
+//
+// Takaki Watanabe
+// wtakaki@m.u-tokyo.ac.jp
+
+
+load_file("nrngui.hoc")
+
+objref stim[5], plotwin
+objref w[500], gp[5], xl, xr, yb ,yt
+objref ana[500]
+xl= new Vector(20,10)
+xr= new Vector(20,10)
+yb= new Vector(20,10)
+yt= new Vector(20,10)
+
+strdef channelname
+channelname="kcnq"
+
+objref ic, icur
+icur = new Vector(500,100)
+ncur =1
+variable_domain(&ncur, 1,500)
+iint = 250
+idelta=1
+icdel=5
+icdur=0.5
+icinvl1=0.5
+icinvl=icinvl1
+icamp=100
+dt=0.02
+
+objref vc, vcmd
+vcmd= new Vector(500,100)
+ncmd = 10
+vdelta=10
+variable_domain(&ncmd, 1,500)
+vint = -85
+vcdur0=5
+vcdur1=100
+vcdur2=45
+
+color=1
+color2=2
+color3=3
+color4=1
+color5=1
+color6=1
+
+strdef modelname
+strdef modename
+celsius=25
+lstd=40 //um
+totcap=50 // pF
+vm0=-85
+na2=30
+ena_na = na2
+gnabar_na1=10000
+gkhtbar_kht1=0
+gkabar_ka1=0
+g_leak1 =20
+gkcnqbar_kcnq1=0
+gkcnabar_kcna1=0
+gkcnab2bar_kcnab21=0
+
+raster=1
+threcur=0.01
+spiken=0
+threcur0=240
+
+load_file("neuron.hoc")
+load_file("graphs panels.hoc")
+load_file("parameters.hoc")
+load_file("firing simulator.hoc")
+load_file("firing analysis.hoc")
+load_file("channel generator.hoc")
+load_file("channel analysis.hoc")
+
+access soma
+delta20pA()
+set_Mauthner0()
+set_original()
+iclamp2()
+w[1].flip_to(0)
+w[5].flip_to(0)
+
+Clearrecord()

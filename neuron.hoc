@@ -1,0 +1,75 @@
+// Neuron.hoc creates a model Mauthner cell (M-cell) simplified with a single
+// cylindrical compartment shown in Materials and Methods. 
+// specific resistance 1000 ohm*cm2, specific conductance 0.001 mho/cm2, 0.001*1E9 nS/cm2
+//
+// Takaki Watanabe
+// wtakaki@m.u-tokyo.ac.jp
+
+create soma
+soma {
+    nseg=1
+	cm=1 // 1.0 uF/cm2 = 0.01 pF/um2
+	diam=lstd
+	L=lstd
+	}
+
+proc totalcap(){
+somaarea = totcap*1E-6/cm // convert 1pF to 1E-6 uF somaarea cm2
+lstd = 1E4*sqrt(somaarea/PI) // 1cm to 1E4 um
+soma.L = int(lstd)
+soma.diam = int(lstd)
+}
+
+totalcap()	
+
+func nstomho() {
+	return (1E-9*$1/somaarea) // nS to mho/cm2
+}
+
+
+proc capcalL(){
+somaarea = PI*(1E-4*soma.L)*(1E-4*soma.diam)
+totcap = int(1E6*somaarea*cm)
+}
+
+proc capcalD(){
+somaarea = PI*(1E-4*soma.L)*(1E-4*soma.diam)
+totcap = int(1E6*somaarea*cm)
+}
+
+
+proc insertoriginal(){	
+	soma{
+	insert kht 
+	insert na 	
+	insert ka 	
+	insert leak
+	insert kcnq 
+	insert kcna
+    insert kcnab2
+	ek_kht = -90
+	ena_na=na2
+	soma.ena(0.5)=na2
+	ek_ka=-90
+	erev_leak = -85
+	}
+	}
+	
+proc uninsertall(){	
+soma{
+	uninsert kht 
+	uninsert na 
+	uninsert ka 
+	uninsert leak
+    uninsert hh
+	uninsert kcnq
+	uninsert kcna
+	uninsert kcnab2
+	}
+	}	
+	
+
+access soma
+
+
+

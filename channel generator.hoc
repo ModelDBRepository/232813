@@ -1,0 +1,815 @@
+// Channel generator.hoc emulates two-electrode voltage-clamp recording (TEVC) from
+// an arbitrary Na+ or K+ channel-expressing Xenopus oocyte.
+// The code and equations of a Hodgkin-Huxley model are modified from the simulation
+// by Rothman and Manis, 2003. Parameters of equations for each channel can be
+// arbitrary changed to fit model traces to experimental data. 
+// Low-threshold K+ channels kcnq, kcna, and kcnab2 are adjusted to our data in Figure 4.
+// Voltage-gated Na+ channel na and the other K+ channels kht and ka are arbitrary
+// determined by fitting model action potential waveform to that of tonic firing in the M-cell 
+// shown in Figure 1. The model currents of kcnq, kcna, and kcnab2 are shown in Figure 5A. 
+//
+// Takaki Watanabe
+// wtakaki@m.u-tokyo.ac.jp
+
+create a
+a	{nseg=1 diam=20 L=20 
+insert na
+insert kcnq
+insert kht
+insert kcna
+insert kcnab2
+insert ka
+	insert pas g_pas=1/10000 Ra=150 cm=1}
+	
+access a
+strdef f1,f2,f3,f4
+strdef f5,f6,f7,f8
+strdef f9,f10,f11,f12
+strdef f13,f14,f15,f16,f17,f18
+strdef f19,f20,f21,f22
+strdef f23,f24,f25,f26
+
+proc set_na(){
+modelchannel=0
+channelname="Na"
+a{
+insert na
+uninsert kht
+uninsert kcna
+uninsert kcnab2
+uninsert ka
+uninsert kcnq
+ena_na= 50 
+gnabar_na=0.07958
+		}
+f19="minf = 1 / (1 + exp(-(v + aa) / bb))"
+f20="hinf = 1 / (1 + exp((v + cc) / dd))"
+f21="mtau =(ee / (ff*exp((v+gg) / hh) + ii*exp(-(v+jj) / kk))) + ll"
+f22="htau =(mm / (nn*exp((v+oo) / pp) + qq*exp(-(v+rr) / ss))) + tt"
+}
+
+proc set_kcnq(){
+modelchannel=1
+channelname="kcnq"
+a{
+uninsert na
+uninsert kht
+uninsert kcna
+uninsert kcnab2
+uninsert ka
+insert kcnq
+ek_kcnq=-90 
+gkcnqbar_kcnq=0.01592
+		}
+f1="winf1 = (1 / (1 + exp(-(v + aa) / bb)))^cc"
+f2="zinf1 = zss1 + ((1-zss1) / (1 + exp((v + dd) / ee)))"
+f3="wtau1 =(ff / (gg*exp((v+hh) / ii) + jj*exp(-(v+kk) / ll))) + mm"
+f4="ztau1 =(nn / (exp((v+oo) / pp) + exp(-(v+qq) / rr))) + ss"
+}
+
+proc set_kcna(){
+modelchannel=2
+channelname="kcna"
+a{
+uninsert na
+uninsert kcnq
+uninsert kcnab2
+uninsert kht
+uninsert ka
+insert kcna
+ek_kcna=-90 
+		gkcnabar_kcna=0.01592
+		}
+f9="winf2 = (1 / (1 + exp(-(v + aa2) / bb2)))^cc2"
+f10="zinf2 = zss2 + ((1-zss2) / (1 + exp((v + dd2) / ee2)))"
+f11="wtau2 =(ff2 / (gg2*exp((v+hh2) / ii2) + jj2*exp(-(v+kk2) / ll2))) + mm2"
+f12="ztau2 =(nn2 / (exp((v+oo2) / pp2) + exp(-(v+qq2) / rr2))) + ss2"
+}
+
+proc set_kcnab2(){
+modelchannel=5
+channelname="kcnab2"
+a{
+uninsert na
+uninsert kcnq
+uninsert kcna
+uninsert kht
+uninsert ka
+insert kcnab2
+ek_kcnab2=-90 
+		gkcnab2bar_kcnab2=0.01592
+		}
+f23="winf4 = (1 / (1 + exp(-(v + aa4) / bb4)))^cc4"
+f24="zinf4 = zss4 + ((1-zss4) / (1 + exp((v + dd4) / ee4)))"
+f25="wtau4 =(ff4 / (gg4*exp((v+hh4) / ii4) + jj4*exp(-(v+kk4) / ll4))) + mm4"
+f26="ztau4 =(nn4 / (exp((v+oo4) / pp4) + exp(-(v+qq4) / rr4))) + ss4"
+}
+
+proc set_kht(){
+modelchannel=3
+channelname="kht"
+a{
+uninsert na
+uninsert kcnq
+uninsert kcna
+uninsert kcnab2
+uninsert ka
+insert kht
+ek_kht=-90 
+		gkhtbar_kht=0.01592
+		}
+f5="ninf =(1 + exp(-(v + aa1) / bb1))^-cc1"
+f6="pinf = 1 / (1 + exp(-(v + dd1) / ee1))"
+f7="ntau =(ff1 / (gg1*exp((v+hh1) / ii1) + jj1*exp(-(v+kk1) / ll1))) + mm1"
+f8="ptau =(nn1 / (oo1*exp((v+pp1) / qq1) + rr1*exp(-(v+ss1) / tt1))) + uu1"
+}
+
+proc set_ka(){
+modelchannel=4
+channelname="ka"
+a{
+uninsert na
+uninsert kcnq
+uninsert kht
+uninsert kcna
+uninsert kcnab2
+insert ka
+ek_ka=-90 
+		gkabar_ka=0.01592
+		}
+f13="ainf =(1 / (1 + exp(-1*(v + aa3) / bb3)))^cc3"
+f14="binf = 1 / (1 + exp((v + dd3) / ee3))^ff3"
+f15="cinf = 1 / (1 + exp((v + gg3) / hh3))^ii3"
+f16="atau = (jj3 / (kk3*exp((v+ll3) / mm3) + nn3*exp(-(v+oo3) / pp3))) + qq3"
+f17="btau = (rr3 / (ss3*exp((v+tt3) / uu3) + vv3*exp(-(v+ww3) / xx3))) + yy3"
+f18="ctau = (zz3 / (1 + exp((-aaa3-v) / bbb3))) + ccc3"
+}
+
+//Default setting
+set_kcnq()
+xvpreamp = -80
+xvpredur = 5
+xvdur = 200
+xvpostamp = -80
+xvpostdur = 5
+tstop=xvpredur+xvdur+xvpostdur
+vlow = -80
+vhigh = 50
+usetable_kcnq = 0
+usetable_kht = 0
+usetable_kcna = 0
+usetable_kcnb2 = 0
+usetable_ka = 0
+usetable_na = 0
+frac=0
+color=1
+color6=1
+
+objref gk, b,gt,vc2,c, gf,gs,ic2,d,e,f, g
+b = new VBox()
+c = new VBox()
+d = new VBox()
+e = new Deck()
+f = new Deck()
+g = new VBox()
+
+w[6]= new HBox()
+w[6].intercept(1)
+
+c.intercept(1)
+gf = new Graph(0)
+gf.view(0,-2,150,17,0,0,400,300)
+gf.exec_menu("New Axis")
+gf.exec_menu("10% Zoom out")
+gf.label(0.4,0.95,"current (nA)")
+gf.label(0.2,0.02,"-100mV")
+gf.label(0.2,0.85,"+10mV")
+gf.exec_menu("Keep Lines")
+c.intercept(0)
+c.map("Ik Voltage Clamp Currents",1100,800,400,400)
+
+b.intercept(1)
+gk = new Graph(0)
+gk.view(vlow,0,vhigh-vlow,1,0,0,100,200)
+gk.exec_menu("New Axis")
+gk.exec_menu("10% Zoom out")
+gk.label(0.1,0.9,"winf,zinf steady-state activation (w1, z1)")
+gk.addexpr("winf1_kcnq",1,2, 2*tstop,0,2)
+gk.addexpr("zinf1_kcnq",2,2, 2*tstop,0,2)
+
+gt = new Graph(0)
+gt.view(vlow,0,vhigh-vlow,30,0,0,100,200)
+gt.exec_menu("New Axis")
+gt.exec_menu("10% Zoom out")
+gt.label(0.1,0.9,"wtau,ztau (*1/20) time constants")
+gt.addexpr("wtau1_kcnq",1,2, 2*tstop,0,2)
+gt.addexpr("ztau1_kcnq*0.05",2,2, 2*tstop,0,2)
+
+gs = new Graph(0)
+gs.view(0,-70,150,50,0,0,100,200)
+gs.exec_menu("New Axis")
+gs.exec_menu("10% Zoom out")
+gs.label(0.1,0.9,"+0.1nA current injection")
+gs.exec_menu("Keep Lines")
+
+b.intercept(0)
+b.map("Ikcnq Kinetics",900,0,150,300)
+
+g.intercept(1)
+
+xpanel("")
+xradiobutton("kcnq","set_kcnq() e.flip_to(0) f.flip_to(0)",1)
+xradiobutton("kcna","set_kcna() e.flip_to(2) f.flip_to(2)",0)
+xradiobutton("kcnab2","set_kcnab2() e.flip_to(5) f.flip_to(5)",0)
+xradiobutton("kht","set_kht() e.flip_to(1) f.flip_to(1)",0)
+xradiobutton("ka","set_ka() e.flip_to(3) f.flip_to(3)",0)
+xradiobutton("na","set_na() e.flip_to(4) f.flip_to(4)",0)
+xbutton("Run", "run2()")
+xbutton("Stop","excute stoprun=1")
+xbutton("Erase","reGraph2()")
+xvalue("celsius","celsius",1,"run2()",0,0)
+xpanel()
+
+xpanel("")
+xvalue("pre amp","xvpreamp",1,"",0,0)
+xvalue("pre dur","xvpredur",1,"",0,0)
+xvalue("low amp","vlow",1,"",0,0)
+xvalue("high amp","vhigh",1,"",0,0)
+xvalue("dur","xvdur",1,"",0,0)
+xvalue("post amp","xvpostamp",1,"",0,0)
+xvalue("post dur","xvpostdur",1,"",0,0)
+xpanel()
+g.intercept(0)
+g.map("",1200,0,200,200)
+
+d.intercept(1)
+
+e.intercept(1)
+xpanel("")
+xvarlabel(f1)
+xvarlabel(f2)
+xvarlabel(f3)
+xvarlabel(f4)
+xpanel()
+xpanel("")
+xvarlabel(f5)
+xvarlabel(f6)
+xvarlabel(f7)
+xvarlabel(f8)
+xpanel()
+xpanel("")
+xvarlabel(f9)
+xvarlabel(f10)
+xvarlabel(f11)
+xvarlabel(f12)
+xpanel()
+xpanel("")
+xvarlabel(f13)
+xvarlabel(f14)
+xvarlabel(f15)
+xvarlabel(f16)
+xvarlabel(f17)
+xvarlabel(f18)
+xpanel()
+xpanel("")
+xvarlabel(f19)
+xvarlabel(f20)
+xvarlabel(f21)
+xvarlabel(f22)
+xpanel()
+xpanel("")
+xvarlabel(f23)
+xvarlabel(f24)
+xvarlabel(f25)
+xvarlabel(f26)
+xpanel()
+e.intercept(0)
+e.map("Fomula",600,0,300,200)
+
+f.intercept(1)
+xpanel("")
+xvalue("aa","aa0_kcnq",1,"rates_kcnq(v) runkinetics() run2()",0,0)
+xvalue("bb","bb0_kcnq",1,"rates_kcnq(v) runkinetics() run2()",0,0)
+xvalue("cc","cc0_kcnq",1,"rates_kcnq(v) runkinetics() run2()",0,0)
+xvalue("zss","zss0_kcnq",1,"rates_kcnq(v) runkinetics() run2()",0,0)
+xvalue("dd","dd0_kcnq",1,"rates_kcnq(v) runkinetics() run2()",0,0)
+xvalue("ee","ee0_kcnq",1,"rates_kcnq(v) runkinetics() run2()",0,0)
+xvalue("ff","ff0_kcnq",1,"rates_kcnq(v) runkinetics() run2()",0,0)
+xvalue("gg","gg0_kcnq",1,"rates_kcnq(v) runkinetics() run2()",0,0)
+xvalue("hh","hh0_kcnq",1,"rates_kcnq(v) runkinetics() run2()",0,0)
+xvalue("ii","ii0_kcnq",1,"rates_kcnq(v) runkinetics() run2()",0,0)
+xvalue("jj","jj0_kcnq",1,"rates_kcnq(v) runkinetics() run2()",0,0)
+xvalue("kk","kk0_kcnq",1,"rates_kcnq(v) runkinetics() run2()",0,0)
+xvalue("ll","ll0_kcnq",1,"rates_kcnq(v) runkinetics() run2()",0,0)
+xvalue("mm","mm0_kcnq",1,"rates_kcnq(v) runkinetics() run2()",0,0)
+xvalue("nn","nn0_kcnq",1,"rates_kcnq(v) runkinetics() run2()",0,0)
+xvalue("oo","oo0_kcnq",1,"rates_kcnq(v) runkinetics() run2()",0,0)
+xvalue("pp","pp0_kcnq",1,"rates_kcnq(v) runkinetics() run2()",0,0)
+xvalue("qq","qq0_kcnq",1,"rates_kcnq(v) runkinetics() run2()",0,0)
+xvalue("rr","rr0_kcnq",1,"rates_kcnq(v) runkinetics() run2()",0,0)
+xvalue("ss","ss0_kcnq",1,"rates_kcnq(v) runkinetics() run2()",0,0)
+xpanel()
+xpanel("")
+xvalue("aa","aa1_kht",1,"rates_kht(v) runkinetics() run2()",0,0)
+xvalue("bb","bb1_kht",1,"rates_kht(v) runkinetics() run2()",0,0)
+xvalue("cc","cc1_kht",1,"rates_kht(v) runkinetics() run2()",0,0)
+xvalue("dd","dd1_kht",1,"rates_kht(v) runkinetics() run2()",0,0)
+xvalue("ee","ee1_kht",1,"rates_kht(v) runkinetics() run2()",0,0)
+xvalue("ff","ff1_kht",1,"rates_kht(v) runkinetics() run2()",0,0)
+xvalue("gg","gg1_kht",1,"rates_kht(v) runkinetics() run2()",0,0)
+xvalue("hh","hh1_kht",1,"rates_kht(v) runkinetics() run2()",0,0)
+xvalue("ii","ii1_kht",1,"rates_kht(v) runkinetics() run2()",0,0)
+xvalue("jj","jj1_kht",1,"rates_kht(v) runkinetics() run2()",0,0)
+xvalue("kk","kk1_kht",1,"rates_kht(v) runkinetics() run2()",0,0)
+xvalue("ll","ll1_kht",1,"rates_kht(v) runkinetics() run2()",0,0)
+xvalue("mm","mm1_kht",1,"rates_kht(v) runkinetics() run2()",0,0)
+xvalue("nn","nn1_kht",1,"rates_kht(v) runkinetics() run2()",0,0)
+xvalue("oo","oo1_kht",1,"rates_kht(v) runkinetics() run2()",0,0)
+xvalue("pp","pp1_kht",1,"rates_kht(v) runkinetics() run2()",0,0)
+xvalue("qq","qq1_kht",1,"rates_kht(v) runkinetics() run2()",0,0)
+xvalue("rr","rr1_kht",1,"rates_kht(v) runkinetics() run2()",0,0)
+xvalue("ss","ss1_kht",1,"rates_kht(v) runkinetics() run2()",0,0)
+xvalue("tt","tt1_kht",1,"rates_kht(v) runkinetics() run2()",0,0)
+xvalue("uu","uu1_kht",1,"rates_kht(v) runkinetics() run2()",0,0)
+xvalue("nf","nf_kht",1,"rates_kht(v) runkinetics() run2()",0,0)
+xpanel()
+xpanel("")
+xvalue("aa","aa2_kcna",1,"rates_kcna(v) runkinetics() run2()",0,0)
+xvalue("bb","bb2_kcna",1,"rates_kcna(v) runkinetics() run2()",0,0)
+xvalue("cc","cc2_kcna",1,"rates_kcna(v) runkinetics() run2()",0,0)
+xvalue("zss","zss2_kcna",1,"rates_kcna(v) runkinetics() run2()",0,0)
+xvalue("dd","dd2_kcna",1,"rates_kcna(v) runkinetics() run2()",0,0)
+xvalue("ee","ee2_kcna",1,"rates_kcna(v) runkinetics() run2()",0,0)
+xvalue("ff","ff2_kcna",1,"rates_kcna(v) runkinetics() run2()",0,0)
+xvalue("gg","gg2_kcna",1,"rates_kcna(v) runkinetics() run2()",0,0)
+xvalue("hh","hh2_kcna",1,"rates_kcna(v) runkinetics() run2()",0,0)
+xvalue("ii","ii2_kcna",1,"rates_kcna(v) runkinetics() run2()",0,0)
+xvalue("jj","jj2_kcna",1,"rates_kcna(v) runkinetics() run2()",0,0)
+xvalue("kk","kk2_kcna",1,"rates_kcna(v) runkinetics() run2()",0,0)
+xvalue("ll","ll2_kcna",1,"rates_kcna(v) runkinetics() run2()",0,0)
+xvalue("mm","mm2_kcna",1,"rates_kcna(v) runkinetics() run2()",0,0)
+xvalue("nn","nn2_kcna",1,"rates_kcna(v) runkinetics() run2()",0,0)
+xvalue("oo","oo2_kcna",1,"rates_kcna(v) runkinetics() run2()",0,0)
+xvalue("pp","pp2_kcna",1,"rates_kcna(v) runkinetics() run2()",0,0)
+xvalue("qq","qq2_kcna",1,"rates_kcna(v) runkinetics() run2()",0,0)
+xvalue("rr","rr2_kcna",1,"rates_kcna(v) runkinetics() run2()",0,0)
+xvalue("ss","ss2_kcna",1,"rates_kcna(v) runkinetics() run2()",0,0)
+xpanel()
+xpanel("")
+xvalue("aa","aa3_ka",1,"rates_ka(v) runkinetics() run2()",0,0)
+xvalue("bb","bb3_ka",1,"rates_ka(v) runkinetics() run2()",0,0)
+xvalue("cc","cc3_ka",1,"rates_ka(v) runkinetics() run2()",0,0)
+xvalue("dd","dd3_ka",1,"rates_ka(v) runkinetics() run2()",0,0)
+xvalue("ee","ee3_ka",1,"rates_ka(v) runkinetics() run2()",0,0)
+xvalue("ff","ff3_ka",1,"rates_ka(v) runkinetics() run2()",0,0)
+xvalue("gg","gg3_ka",1,"rates_ka(v) runkinetics() run2()",0,0)
+xvalue("hh","hh3_ka",1,"rates_ka(v) runkinetics() run2()",0,0)
+xvalue("ii","ii3_ka",1,"rates_ka(v) runkinetics() run2()",0,0)
+xvalue("jj","jj3_ka",1,"rates_ka(v) runkinetics() run2()",0,0)
+xvalue("kk","kk3_ka",1,"rates_ka(v) runkinetics() run2()",0,0)
+xvalue("ll","ll3_ka",1,"rates_ka(v) runkinetics() run2()",0,0)
+xvalue("mm","mm3_ka",1,"rates_ka(v) runkinetics() run2()",0,0)
+xvalue("nn","nn3_ka",1,"rates_ka(v) runkinetics() run2()",0,0)
+xvalue("oo","oo3_ka",1,"rates_ka(v) runkinetics() run2()",0,0)
+xvalue("pp","pp3_ka",1,"rates_ka(v) runkinetics() run2()",0,0)
+xvalue("qq","qq3_ka",1,"rates_ka(v) runkinetics() run2()",0,0)
+xvalue("rr","rr3_ka",1,"rates_ka(v) runkinetics() run2()",0,0)
+xvalue("ss","ss3_ka",1,"rates_ka(v) runkinetics() run2()",0,0)
+xvalue("tt","tt3_ka",1,"rates_ka(v) runkinetics() run2()",0,0)
+xvalue("uu","uu3_ka",1,"rates_ka(v) runkinetics() run2()",0,0)
+xvalue("vv","vv3_ka",1,"rates_ka(v) runkinetics() run2()",0,0)
+xvalue("ww","ww3_ka",1,"rates_ka(v) runkinetics() run2()",0,0)
+xvalue("xx","xx3_ka",1,"rates_ka(v) runkinetics() run2()",0,0)
+xvalue("yy","yy3_ka",1,"rates_ka(v) runkinetics() run2()",0,0)
+xvalue("zz","zz3_ka",1,"rates_ka(v) runkinetics() run2()",0,0)
+xvalue("aaa","aaa3_ka",1,"rates_ka(v) runkinetics() run2()",0,0)
+xvalue("bbb","bbb3_ka",1,"rates_ka(v) runkinetics() run2()",0,0)
+xvalue("ccc","ccc3_ka",1,"rates_ka(v) runkinetics() run2()",0,0)
+xpanel()
+xpanel("")
+xvalue("aa","aa4_na",1,"rates_na(v) runkinetics() run2()",0,0)
+xvalue("bb","bb4_na",1,"rates_na(v) runkinetics() run2()",0,0)
+xvalue("cc","cc4_na",1,"rates_na(v) runkinetics() run2()",0,0)
+xvalue("dd","dd4_na",1,"rates_na(v) runkinetics() run2()",0,0)
+xvalue("ee","ee4_na",1,"rates_na(v) runkinetics() run2()",0,0)
+xvalue("ff","ff4_na",1,"rates_na(v) runkinetics() run2()",0,0)
+xvalue("gg","gg4_na",1,"rates_na(v) runkinetics() run2()",0,0)
+xvalue("hh","hh4_na",1,"rates_na(v) runkinetics() run2()",0,0)
+xvalue("ii","ii4_na",1,"rates_na(v) runkinetics() run2()",0,0)
+xvalue("jj","jj4_na",1,"rates_na(v) runkinetics() run2()",0,0)
+xvalue("kk","kk4_na",1,"rates_na(v) runkinetics() run2()",0,0)
+xvalue("ll","ll4_na",1,"rates_na(v) runkinetics() run2()",0,0)
+xvalue("mm","mm4_na",1,"rates_na(v) runkinetics() run2()",0,0)
+xvalue("nn","nn4_na",1,"rates_na(v) runkinetics() run2()",0,0)
+xvalue("oo","oo4_na",1,"rates_na(v) runkinetics() run2()",0,0)
+xvalue("pp","pp4_na",1,"rates_na(v) runkinetics() run2()",0,0)
+xvalue("qq","qq4_na",1,"rates_na(v) runkinetics() run2()",0,0)
+xvalue("rr","rr4_na",1,"rates_na(v) runkinetics() run2()",0,0)
+xvalue("ss","ss4_na",1,"rates_na(v) runkinetics() run2()",0,0)
+xvalue("tt","tt4_na",1,"rates_na(v) runkinetics() run2()",0,0)
+xpanel()
+xpanel("")
+xvalue("aa","aa4_kcnab2",1,"rates_kcnab2(v) runkinetics() run2()",0,0)
+xvalue("bb","bb4_kcnab2",1,"rates_kcnab2(v) runkinetics() run2()",0,0)
+xvalue("cc","cc4_kcnab2",1,"rates_kcnab2(v) runkinetics() run2()",0,0)
+xvalue("zss","zss4_kcnab2",1,"rates_kcnab2(v) runkinetics() run2()",0,0)
+xvalue("dd","dd4_kcnab2",1,"rates_kcnab2(v) runkinetics() run2()",0,0)
+xvalue("ee","ee4_kcnab2",1,"rates_kcnab2(v) runkinetics() run2()",0,0)
+xvalue("ff","ff4_kcnab2",1,"rates_kcnab2(v) runkinetics() run2()",0,0)
+xvalue("gg","gg4_kcnab2",1,"rates_kcnab2(v) runkinetics() run2()",0,0)
+xvalue("hh","hh4_kcnab2",1,"rates_kcnab2(v) runkinetics() run2()",0,0)
+xvalue("ii","ii4_kcnab2",1,"rates_kcnab2(v) runkinetics() run2()",0,0)
+xvalue("jj","jj4_kcnab2",1,"rates_kcnab2(v) runkinetics() run2()",0,0)
+xvalue("kk","kk4_kcnab2",1,"rates_kcnab2(v) runkinetics() run2()",0,0)
+xvalue("ll","ll4_kcnab2",1,"rates_kcnab2(v) runkinetics() run2()",0,0)
+xvalue("mm","mm4_kcnab2",1,"rates_kcnab2(v) runkinetics() run2()",0,0)
+xvalue("nn","nn4_kcnab2",1,"rates_kcnab2(v) runkinetics() run2()",0,0)
+xvalue("oo","oo4_kcnab2",1,"rates_kcnab2(v) runkinetics() run2()",0,0)
+xvalue("pp","pp4_kcnab2",1,"rates_kcnab2(v) runkinetics() run2()",0,0)
+xvalue("qq","qq4_kcnab2",1,"rates_kcnab2(v) runkinetics() run2()",0,0)
+xvalue("rr","rr4_kcnab2",1,"rates_kcnab2(v) runkinetics() run2()",0,0)
+xvalue("ss","ss4_kcnab2",1,"rates_kcnab2(v) runkinetics() run2()",0,0)
+xpanel()
+f.intercept(0)
+f.map()
+d.intercept(0)
+d.map("Channel generator",850,0,250,300)
+e.flip_to(0)
+f.flip_to(0)
+w[6].intercept(0)
+w[6].map("Channel generator",800,0,700,300)
+
+vc2 = new VClamp(0.5)
+ic2 = new IClamp(0.5)
+
+proc reGraph2(){
+    gk.erase_all()
+	gk.yaxis(0)	
+	gk.label(0.1,0.9,"winf,zinf steady-state activation (w1, z1)")
+    gt.erase_all()
+	gt.yaxis(0)
+	gt.label(0.1,0.9,"wtau,ztau (*1/20) time constants")
+	gs.erase_all()
+	gs.yaxis(0)
+	gs.label(0.1,0.9,"+0.1 nA current injection")
+	gf.erase_all()
+	gf.yaxis(0)	
+	gf.label(0.4,0.95,"current (nA)")
+    gf.label(0.2,0.08,"-100mV")
+    gf.label(0.2,0.85,"+10mV")
+usetable_kcnq = 0
+usetable_kht = 0
+usetable_kcna = 0
+usetable_kcnab2 = 0
+usetable_ka = 0
+usetable_na = 0
+frac=0
+color=1
+	}
+	
+proc run2() {
+access a
+stoprun=0
+celsius=20
+dt=0.04
+ m=0
+tstop=xvpredur+xvdur+xvpostdur
+color6=color6
+reGraph2()
+ana[12].beginline(color6,1)
+ana[13].beginline(color6,1)
+ana[14].beginline(color6,1)
+ana[15].beginline(color6,1)
+ana[16].beginline(color6,1)
+ana[17].beginline(color6,1)
+if(modelchannel==0){
+nagraphs()
+}else if(modelchannel==1){
+kcnqgraphs()
+}else if(modelchannel==2){
+kcnagraphs()
+}else if(modelchannel==3){
+khtgraphs()
+}else if(modelchannel==4){
+kagraphs()
+}else if(modelchannel==5){
+kcnab2graphs()
+}
+
+if(modelchannel==0){
+inagraph()
+}else{
+ikgraph()
+}
+
+num3=num3-0.05
+excute stoprun=1
+}
+
+proc runkinetics() {
+access a
+stoprun=0
+reGraph2()
+if(modelchannel==0){
+nagraphs()
+}else if(modelchannel==1){
+kcnqgraphs()
+}else if(modelchannel==2){
+kcnagraphs()
+}else if(modelchannel==3){
+khtgraphs()
+}else if(modelchannel==4){
+kagraphs()
+}else if(modelchannel==5){
+kcnab2graphs()
+}
+}
+
+proc nagraphs(){
+gk.addexpr("minf_na",1,2, 2*tstop,0,2)
+gk.addexpr("hinf_na",2,2, 2*tstop,0,2)
+gk.begin()
+for (v=vlow; v<vhigh; v=v+1) {
+    trates_na(v)
+    gk.plot(v)
+}
+gk.flush()
+doNotify()
+gk.exec_menu("View = plot")
+gk.exec_menu("10% Zoom out")
+
+gt.addexpr("mtau_na",1,2, 2*tstop,0,2)
+gt.addexpr("htau_na*0.05",2,2, 2*tstop,0,2)
+gt.begin()
+gt.color(2)
+for (v=vlow; v<vhigh; v=v+1) {
+	trates_na(v)
+    gt.plot(v)
+}
+gt.flush()
+doNotify()
+gt.exec_menu("View = plot")
+gt.exec_menu("10% Zoom out")
+}
+
+proc kcnqgraphs(){
+gk.addexpr("winf1_kcnq",1,2, 2*tstop,0,2)
+gk.addexpr("zinf1_kcnq",2,2, 2*tstop,0,2)
+gk.begin()
+for (v=vlow; v<vhigh; v=v+1) {
+    trates_kcnq(v)
+    gk.plot(v)
+}
+gk.flush()
+doNotify()
+gk.exec_menu("View = plot")
+gk.exec_menu("10% Zoom out")
+
+gt.addexpr("wtau1_kcnq",1,2, 2*tstop,0,2)
+gt.addexpr("ztau1_kcnq*0.05",2,2, 2*tstop,0,2)
+gt.begin()
+gt.color(2)
+for (v=vlow; v<vhigh; v=v+1) {
+	trates_kcnq(v)
+    gt.plot(v)
+
+}
+gt.flush()
+doNotify()
+gt.exec_menu("View = plot")
+gt.exec_menu("10% Zoom out")
+}
+
+proc kcnagraphs(){
+gk.addexpr("winf2_kcna",1,2, 2*tstop,0,2)
+gk.addexpr("zinf2_kcna",2,2, 2*tstop,0,2)
+gk.begin()
+for (v=vlow; v<vhigh; v=v+1) {
+    trates_kcna(v)
+    gk.plot(v)
+}
+gk.flush()
+doNotify()
+gk.exec_menu("View = plot")
+gk.exec_menu("10% Zoom out")
+
+gt.addexpr("wtau2_kcna",1,2, 2*tstop,0,2)
+gt.addexpr("ztau2_kcna*0.05",2,2, 2*tstop,0,2)
+gt.begin()
+gt.color(2)
+for (v=vlow; v<vhigh; v=v+1) {
+	trates_kcna(v)
+    gt.plot(v)
+}
+gt.flush()
+doNotify()
+gt.exec_menu("View = plot")
+gt.exec_menu("10% Zoom out")
+}
+
+proc kcnab2graphs(){
+gk.addexpr("winf4_kcnab2",1,2, 2*tstop,0,2)
+gk.addexpr("zinf4_kcnab2",2,2, 2*tstop,0,2)
+gk.begin()
+for (v=vlow; v<vhigh; v=v+1) {
+    trates_kcnab2(v)
+    gk.plot(v)
+}
+gk.flush()
+doNotify()
+gk.exec_menu("View = plot")
+gk.exec_menu("10% Zoom out")
+
+gt.addexpr("wtau4_kcnab2",1,2, 2*tstop,0,2)
+gt.addexpr("ztau4_kcnab2*0.05",2,2, 2*tstop,0,2)
+gt.begin()
+gt.color(2)
+for (v=vlow; v<vhigh; v=v+1) {
+	trates_kcnab2(v)
+    gt.plot(v)
+}
+gt.flush()
+doNotify()
+gt.exec_menu("View = plot")
+gt.exec_menu("10% Zoom out")
+}
+
+proc khtgraphs(){
+gk.addexpr("ninf_kht",1,2, 2*tstop,0,2)
+gk.addexpr("pinf_kht",2,2, 2*tstop,0,2)
+gk.begin()
+for (v=vlow; v<vhigh; v=v+1) {
+    trates_kht(v)
+    gk.plot(v)
+}
+gk.flush()
+doNotify()
+gk.exec_menu("View = plot")
+gk.exec_menu("10% Zoom out")
+
+gt.addexpr("ntau_kht",1,2, 2*tstop,0,2)
+gt.addexpr("ptau_kht*0.05",2,2, 2*tstop,0,2)
+gt.begin()
+gt.color(2)
+for (v=vlow; v<vhigh; v=v+1) {
+	trates_kht(v)
+    gt.plot(v)
+}
+gt.flush()
+doNotify()
+gt.exec_menu("View = plot")
+gt.exec_menu("10% Zoom out")
+}
+
+proc kagraphs(){
+gk.addexpr("ainf_ka",1,2, 2*tstop,0,2)
+gk.addexpr("binf_ka",2,2, 2*tstop,0,2)
+gk.addexpr("cinf_ka",3,2, 2*tstop,0,2)
+gk.begin()
+for (v=vlow; v<vhigh; v=v+1) {
+    trates_ka(v)
+    gk.plot(v)
+}
+gk.flush()
+doNotify()
+gk.exec_menu("View = plot")
+gk.exec_menu("10% Zoom out")
+
+gt.addexpr("atau_ka",1,2, 2*tstop,0,2)
+gt.addexpr("btau_ka",2,2, 2*tstop,0,2)
+gt.addexpr("ctau_ka",3,2, 2*tstop,0,2)
+gt.begin()
+gt.color(2)
+for (v=vlow; v<vhigh; v=v+1) {
+	trates_ka(v)
+    gt.plot(v)
+}
+gt.flush()
+doNotify()
+gt.exec_menu("View = plot")
+gt.exec_menu("10% Zoom out")
+}
+
+proc inagraph(){
+tstop=xvpredur+xvdur+xvpostdur
+gs.addexpr("a.v(0.5)",color,1, 2*tstop,0,2)
+gs.begin()
+ic2.del=5
+ic2.dur=xvdur
+ic2.amp=0.10
+v=xvpreamp
+finitialize(v)
+fcurrent()
+e_pas=v+(a.ina(0.5))/g_pas
+t=0
+while (t<tstop*1.5) {
+    fadvance()
+    gs.plot(t)
+    }
+gs.flush()
+doNotify()
+ic2.amp=0
+gs.exec_menu("View = plot")
+gs.exec_menu("10% Zoom out")
+k=vlow
+while (k<=vhigh) {
+gf.addexpr("a.ina(0.5)*area(0.5)*1e-2",color,1, 2*tstop,0,2) // *10=pA, *1e-2=nA
+gf.begin()
+	t=0
+	vc2.amp[0]=xvpreamp 
+	vc2.dur[0]=xvpredur 
+	vc2.amp[1]=k
+	vc2.dur[1]=ic2.dur
+	vc2.amp[2]=xvpostamp 
+	vc2.dur[2]=xvpostdur 
+	forall {finitialize(xvpreamp)}
+	fcurrent()
+	while (t<tstop*1.1) {
+    	fadvance()
+    	gf.plot(t)
+	}
+	gf.flush()
+	doNotify()
+	gf.exec_menu("View = plot")
+	run4()
+	k=k+10	
+		color = color + 0.333 
+}
+
+color=1
+vc2.dur[0]=0
+vc2.dur[1]=0
+vc2.dur[2]=0
+
+
+}
+
+
+proc ikgraph(){
+
+gs.addexpr("a.v(0.5)",color,1, 2*tstop,0,2)
+gs.begin()
+ic2.del=5
+ic2.dur=xvdur
+ic2.amp=0.10
+v=xvpreamp
+finitialize(v)
+fcurrent()
+e_pas=v+(a.ik(0.5))/g_pas
+t=0
+
+while (t<tstop*1.5) {
+    fadvance()
+    gs.plot(t)
+    }
+gs.flush()
+doNotify()
+ic2.amp=0
+gs.exec_menu("View = plot")
+gs.exec_menu("10% Zoom out")
+
+k=vlow
+while (k<=vhigh) {
+gf.addexpr("a.ik(0.5)*area(0.5)*1e-2",color,1, tstop,0,2) // *10=pA, *1e-2=nA
+gf.size(0,tstop,0,10)
+gf.begin()
+	t=0
+    vc2.amp[0]=xvpreamp 
+	vc2.dur[0]=xvpredur 
+	vc2.amp[1]=k
+	vc2.dur[1]=ic2.dur
+	vc2.amp[2]=xvpostamp 
+	vc2.dur[2]=xvpostdur 
+	forall {finitialize(v)}
+	fcurrent()
+	while (t<tstop*1.4) {
+    	fadvance()
+    	gf.plot(t)
+	}
+	gf.flush()
+	doNotify()
+
+		run4()
+			k=k+10	
+		color = color + 0.333 
+}
+
+color=1
+vc2.dur[0]=0
+vc2.dur[1]=0
+vc2.dur[2]=0
+gf.exec_menu("View = plot")
+}
+
+proc newtraces2(){
+num3=1
+w[num4]=new VBox()
+w[num4].intercept(1)
+	ana[num2] = new Graph()
+    ana[num2].size(0,tstop,yt.x[11],yb.x[11])
+	ana[num2].addexpr("a.ina(0.5)*area(0.5)*1e-2",color6,1, 2*tstop,0,2)
+    ana[num2].exec_menu("Keep Lines")
+	ana[num2].label(0.05,0.95,"Fig.5A")
+	w[num4].intercept(0)
+w[num4].map("Channel traces",800,400,200,200)
+}
